@@ -408,6 +408,30 @@ input[type="text"] {
   font-size: 0.8em;
 }
 
+.missao-atual {
+  padding: 0.25rem 0.35rem 0.75rem;
+  border-bottom: 2px solid rgba(90, 58, 30, 0.45);
+}
+
+.missao-atual h3,
+.missao-atual p {
+  margin: 0 0 0.4rem;
+}
+
+.missao-progress {
+  height: 8px;
+  margin-top: 0.35rem;
+  overflow: hidden;
+  border: 1px solid var(--borda);
+  background: var(--painel-fundo);
+}
+
+.missao-progress span {
+  display: block;
+  height: 100%;
+  background: var(--grama);
+}
+
 .interior-room {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
@@ -488,6 +512,19 @@ body.high-contrast .interior-item {
 
 .interact-button:active {
   transform: translateX(-50%) translateY(2px);
+}
+
+.coleta-notificacao {
+  position: absolute;
+  left: 50%;
+  bottom: max(86px, calc(env(safe-area-inset-bottom) + 78px));
+  transform: translateX(-50%);
+  z-index: 11;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  padding: 0.65rem 0.9rem;
+  text-align: center;
+  font-weight: 700;
 }
 
 .tutorial-hint {

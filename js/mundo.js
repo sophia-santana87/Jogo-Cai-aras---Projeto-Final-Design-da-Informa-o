@@ -2,7 +2,7 @@
 // Equipe: Bianca Vasconcelos de Lima; Katryni Haaby dos Santos Bueno; Luana Harmatiuk Guimarães; Sophia Santana da Silva; Vanessa da Silva Costa.
 // Disciplina: Design da Informação • 2026.
 
-import { PERSONAGENS, MISSOES_CADASTRO, ROTINAS_VILA } from '../dados/personagens.js?v=25';
+import { PERSONAGENS, MISSOES_CADASTRO, ROTINAS_VILA } from '../dados/personagens.js?v=26';
 
 export const MAPA_LARGURA = 48;
 export const MAPA_ALTURA = 32;
@@ -115,6 +115,14 @@ ESTRADA_RURAL.forEach(({ x, y }) => {
   MAPA[y][x] = 'caminho';
 });
 
+for (const [y, inicio, fim] of [[15, 8, 40], [17, 10, 38], [21, 14, 34]]) {
+  for (let x = inicio; x <= fim; x += 1) {
+    if (MAPA[y][x] === 'vila' || MAPA[y][x] === 'caminho') {
+      MAPA[y][x] = 'caminho';
+    }
+  }
+}
+
 export const NPCS = [
   { ...PERSONAGENS['dona-cida'], x: 21, y: 10 },
   { ...PERSONAGENS.nelson, x: 13, y: 26 },
@@ -178,6 +186,9 @@ export const MAPA_DECORACOES = [
   { tipo: 'rede', x: 12, y: 28 },
   { tipo: 'bandeira', x: 15, y: 28 },
   { tipo: 'luminaria', x: 26, y: 13 },
+  { tipo: 'luminaria', x: 9, y: 18 },
+  { tipo: 'luminaria', x: 26, y: 18 },
+  { tipo: 'luminaria', x: 41, y: 18 },
   { tipo: 'planta-medicinal-a', x: 41, y: 4 },
   { tipo: 'planta-medicinal-b', x: 45, y: 4 },
   { tipo: 'planta-medicinal-c', x: 46, y: 5 },
@@ -219,6 +230,10 @@ export const MAPA_DECORACOES = [
   { tipo: 'capim', x: 45, y: 23 },
   { tipo: 'capim', x: 34, y: 21 },
   { tipo: 'capim', x: 40, y: 21 },
+  { tipo: 'arbusto', x: 8, y: 17 },
+  { tipo: 'flor', x: 9, y: 16 },
+  { tipo: 'arbusto', x: 25, y: 19 },
+  { tipo: 'flor', x: 36, y: 20 },
   { tipo: 'pedra', x: 34, y: 24 },
   { tipo: 'flor', x: 40, y: 24 }
 ];

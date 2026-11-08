@@ -2,7 +2,7 @@
 // Equipe: Bianca Vasconcelos de Lima; Katryni Haaby dos Santos Bueno; Luana Harmatiuk Guimarães; Sophia Santana da Silva; Vanessa da Silva Costa.
 // Disciplina: Design da Informação • 2026.
 
-import { POSICAO_INICIAL_CACHORRO, POSICAO_INICIAL_JOGADOR } from './mundo.js?v=25';
+import { POSICAO_INICIAL_CACHORRO, POSICAO_INICIAL_JOGADOR } from './mundo.js?v=26';
 
 export const ESTADO_PADRAO = {
   nomeJogador: 'Visitante',
@@ -21,6 +21,8 @@ export const ESTADO_PADRAO = {
   progressoMissoes: {},
   missaoAtiva: null,
   cartasColetadas: [],
+  inventario: {},
+  itensArmazemColetados: [],
   eventoConcluido: false,
   progressoEvento: 0,
   peixesDisponiveis: 5,
@@ -63,6 +65,15 @@ export function carregarEstado() {
       },
       cachorro: { ...ESTADO_PADRAO.cachorro, ...parsed.cachorro },
       progressoMissoes: { ...ESTADO_PADRAO.progressoMissoes, ...parsed.progressoMissoes },
+      inventario: parsed.inventario && typeof parsed.inventario === 'object' && !Array.isArray(parsed.inventario)
+        ? Object.fromEntries(Object.entries(parsed.inventario).map(([id, quantidade]) => [
+          id,
+          Number.isFinite(quantidade) && quantidade > 0 ? Math.floor(quantidade) : 0
+        ]))
+        : {},
+      itensArmazemColetados: Array.isArray(parsed.itensArmazemColetados)
+        ? parsed.itensArmazemColetados.filter((item) => typeof item === 'string')
+        : [],
       horariosDePesca: Array.isArray(parsed.horariosDePesca) ? parsed.horariosDePesca : []
     };
   } catch (error) {

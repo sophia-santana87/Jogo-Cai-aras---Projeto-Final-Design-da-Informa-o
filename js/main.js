@@ -2,15 +2,15 @@
 // Equipe: Bianca Vasconcelos de Lima; Katryni Haaby dos Santos Bueno; Luana Harmatiuk Guimarães; Sophia Santana da Silva; Vanessa da Silva Costa.
 // Disciplina: Design da Informação • 2026.
 
-import { CONTEUDO } from '../dados/conteudo.js?v=25';
-import { ESTADO_PADRAO, ajustarIndicadores, carregarEstado, salvarEstado } from './estado.js?v=25';
-import { DialogoController } from './dialogo.js?v=25';
-import { aplicarAcessibilidade } from './acessibilidade.js?v=25';
-import { SomManager } from './som.js?v=25';
-import { renderHorario, renderIndicadores, renderMissoes } from './ui.js?v=25';
-import { AVES_POUSADAS, CENA_FANDANGO, DANCARINOS_FANDANGO, EDIFICIOS, MAPA, MAPA_DECORACOES, MISSION_POINTS, MUSICOS_FANDANGO, NPCS, PESSOAS_CENARIO, POSICAO_INICIAL_CACHORRO, POSICAO_INICIAL_JOGADOR, PONTOS_DE_OBSERVACAO, PONTOS_PESCA, distancia, findPath, getNPCsNoHorario, isPassable, tileAt } from './mundo.js?v=25';
-import { MISSION_ORDER, MISSOES_INFO } from './missoes.js?v=25';
-import { desenharAve, desenharCachorro, desenharDancarino, desenharJogador, desenharMorador, desenharMusico, desenharNpc, desenharObjeto, desenharPiso } from './sprites.js?v=25';
+import { CONTEUDO } from '../dados/conteudo.js?v=26';
+import { ESTADO_PADRAO, ajustarIndicadores, carregarEstado, salvarEstado } from './estado.js?v=26';
+import { DialogoController } from './dialogo.js?v=26';
+import { aplicarAcessibilidade } from './acessibilidade.js?v=26';
+import { SomManager } from './som.js?v=26';
+import { renderHorario, renderIndicadores, renderMissoes } from './ui.js?v=26';
+import { AVES_POUSADAS, CENA_FANDANGO, DANCARINOS_FANDANGO, EDIFICIOS, MAPA, MAPA_DECORACOES, MISSION_POINTS, MUSICOS_FANDANGO, NPCS, PESSOAS_CENARIO, POSICAO_INICIAL_CACHORRO, POSICAO_INICIAL_JOGADOR, PONTOS_DE_OBSERVACAO, PONTOS_PESCA, distancia, findPath, getNPCsNoHorario, isPassable, tileAt } from './mundo.js?v=26';
+import { MISSION_ORDER, MISSOES_INFO } from './missoes.js?v=26';
+import { desenharAve, desenharCachorro, desenharDancarino, desenharJogador, desenharMorador, desenharMusico, desenharNpc, desenharObjeto, desenharPiso } from './sprites.js?v=26';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
@@ -82,10 +82,16 @@ const PARTICULAS = Array.from({ length: 42 }, (_, index) => ({
   fase: (index * 29) % 180,
   tipo: index % 3
 }));
+const ITENS_ARMAZEM = [
+  { id: 'farinha', nome: 'Farinha' },
+  { id: 'peixe', nome: 'Peixe' },
+  { id: 'produtos-comunidade', nome: 'Produtos da comunidade' }
+];
 const ITENS_DESTAQUE = new Set([
   'viola', 'rabeca', 'adufo', 'cataia',
   'planta-medicinal-a', 'planta-medicinal-b', 'planta-medicinal-c'
 ]);
+let coletaNotificacaoTimer = null;
 
 function showScreen(id) {
   Object.entries(telas).forEach(([key, el]) => {
@@ -186,7 +192,9 @@ function atualizarHud() {
   renderHorario(estado, clockRoot);
   renderIndicadores(estado, indicatorRoot);
   renderMissoes(estado, missionRoot);
-  document.getElementById('caderno-contador').textContent = String(estado.cartasColetadas.length);
+  const itensNoInventario = Object.values(estado.inventario || {})
+    .reduce((total, quantidade) => total + (Number.isFinite(quantidade) ? quantidade : 0), 0);
+  document.getElementById('caderno-contador').textContent = String(estado.cartasColetadas.length + itensNoInventario);
 }
 
 function atualizarInteracao() {
@@ -233,7 +241,15 @@ function atualizarInteracao() {
     texto = acaoNoEdificio(edificio);
   }
   interactButton.classList.toggle('hidden', !texto);
-  if (texto) interactButton.textContent = texto;
+  if (texto) interactButton.textContent = `E / toque · ${texto}`;
+}
+
+function mostrarNotificacaoColeta(texto) {
+  const notificacao = document.getElementById('coleta-notificacao');
+  notificacao.textContent = texto;
+  notificacao.classList.remove('hidden');
+  clearTimeout(coletaNotificacaoTimer);
+  coletaNotificacaoTimer = setTimeout(() => notificacao.classList.add('hidden'), 3000);
 }
 
 function mostrarExplicacao(texto, efeitos = null) {
@@ -297,7 +313,7 @@ function abrirCaderno() {
   tabs.className = 'notebook-tabs';
   tabs.setAttribute('role', 'tablist');
   tabs.setAttribute('aria-label', 'Seções do caderno');
-  const sections = ['Missões ativas e objetivos', 'Cartas de saberes coletadas'].map((titulo, indice) => {
+  const sections = ['Missões ativas e objetivos', 'Cartas de saberes coletadas', 'Inventário'].map((titulo, indice) => {
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'notebook-tab';
@@ -381,6 +397,27 @@ function abrirCaderno() {
     empty.className = 'notebook-empty';
     empty.textContent = 'Ainda não há cartas coletadas. Converse com a comunidade e complete missões para registrar saberes.';
     sections[1].appendChild(empty);
+  }
+
+  const itensInventario = ITENS_ARMAZEM
+    .map((item) => ({ ...item, quantidade: Number(estado.inventario[item.id]) || 0 }))
+    .filter((item) => item.quantidade > 0);
+  if (itensInventario.length) {
+    itensInventario.forEach((item) => {
+      const article = document.createElement('article');
+      article.className = 'notebook-card';
+      const title = document.createElement('h4');
+      title.textContent = item.nome;
+      const quantity = document.createElement('p');
+      quantity.textContent = `Quantidade: ${item.quantidade}`;
+      article.append(title, quantity);
+      sections[2].appendChild(article);
+    });
+  } else {
+    const empty = document.createElement('p');
+    empty.className = 'notebook-empty';
+    empty.textContent = 'Ainda não há itens no inventário. Visite o armazém para conhecer os produtos disponíveis.';
+    sections[2].appendChild(empty);
   }
 
   content.append(tabs, ...sections);
@@ -625,6 +662,133 @@ function alvoDaEtapaProximo(contexto) {
   return pontosDaEtapa(contexto).find((ponto) => (
     distancia(estado.jogador.x, estado.jogador.y, ponto.x, ponto.y) <= 1.5
   ));
+}
+
+function destinoDaMissao() {
+  const contexto = obterEtapaAtiva();
+  if (!contexto) {
+    const proximaMissao = MISSION_ORDER.find((id) => !estado.missoesConcluidas.includes(id));
+    return proximaMissao ? MISSION_POINTS[proximaMissao] : null;
+  }
+
+  const { etapa } = contexto;
+  if (etapa.tipo === 'conversar') {
+    const npc = getNPCsNoHorario(estado.horario).find((item) => item.id === etapa.alvo);
+    return npc ? { x: npc.x, y: npc.y } : null;
+  }
+  if (etapa.tipo === 'ir-ate' || etapa.tipo === 'ordenar') {
+    const id = etapa.tipo === 'ordenar' ? 'casa-de-farinha' : etapa.alvo;
+    const edificio = EDIFICIOS.find((item) => item.id === id);
+    return edificio?.entrada || null;
+  }
+  return pontosDaEtapa(contexto)[0] || null;
+}
+
+function desenharIndicadorMissao(tile, camera) {
+  if (!estado.mostrarSetas) return;
+  const destino = destinoDaMissao();
+  if (!destino || distancia(estado.jogador.x, estado.jogador.y, destino.x, destino.y) <= 1.5) return;
+
+  const x = (destino.x + 0.5) * tile - camera.x;
+  const y = (destino.y + 0.5) * tile - camera.y;
+  const margem = Math.max(24, tile * 0.45);
+  const areaSegura = {
+    esquerda: margem,
+    direita: canvas.width - margem,
+    topo: Math.max(margem, canvas.width <= 540 ? 112 : 76),
+    base: canvas.height - Math.max(margem, canvas.height <= 520 ? 108 : 88)
+  };
+  const dentroDaTela = x >= areaSegura.esquerda && x <= areaSegura.direita
+    && y >= areaSegura.topo && y <= areaSegura.base;
+  const pulso = estado.reduzirMovimento ? 1 : 1 + Math.sin(animationTick / 16) * 0.08;
+
+  if (dentroDaTela) {
+    ctx.save();
+    ctx.globalAlpha = 0.82;
+    ctx.fillStyle = '#FFE066';
+    ctx.strokeStyle = estado.altoContraste ? '#FFFFFF' : '#5A3A1E';
+    ctx.lineWidth = Math.max(2, tile * 0.055);
+    ctx.beginPath();
+    ctx.arc(x, y, tile * 0.2 * pulso, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y + tile * 0.18);
+    ctx.lineTo(x, y + tile * 0.38);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  const centroX = canvas.width / 2;
+  const centroY = canvas.height / 2;
+  const dx = x - centroX;
+  const dy = y - centroY;
+  const escalaX = dx > 0
+    ? (areaSegura.direita - centroX) / dx
+    : dx < 0 ? (areaSegura.esquerda - centroX) / dx : Infinity;
+  const escalaY = dy > 0
+    ? (areaSegura.base - centroY) / dy
+    : dy < 0 ? (areaSegura.topo - centroY) / dy : Infinity;
+  const escala = Math.min(escalaX > 0 ? escalaX : Infinity, escalaY > 0 ? escalaY : Infinity);
+  const pontaX = centroX + dx * escala;
+  const pontaY = centroY + dy * escala;
+  const angulo = Math.atan2(dy, dx);
+  const tamanho = Math.max(11, Math.min(18, tile * 0.34));
+  ctx.save();
+  ctx.translate(pontaX, pontaY);
+  ctx.rotate(angulo);
+  ctx.fillStyle = estado.altoContraste ? '#FFFFFF' : '#FFE066';
+  ctx.strokeStyle = '#5A3A1E';
+  ctx.lineWidth = Math.max(2, tile * 0.05);
+  ctx.beginPath();
+  ctx.moveTo(tamanho, 0);
+  ctx.lineTo(-tamanho * 0.7, -tamanho * 0.65);
+  ctx.lineTo(-tamanho * 0.45, 0);
+  ctx.lineTo(-tamanho * 0.7, tamanho * 0.65);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function desenharIdentificacaoLocal(tile, camera) {
+  const locais = [
+    ...EDIFICIOS.map((edificio) => ({
+      nome: nomeEdificio(edificio),
+      x: edificio.entrada.x,
+      y: edificio.entrada.y
+    })),
+    ...PONTOS_PESCA.map((ponto) => ({
+      nome: ponto.tipo === 'mar' ? 'Píer' : 'Lagoa',
+      x: ponto.x,
+      y: ponto.y
+    }))
+  ];
+  const local = locais
+    .map((item) => ({ ...item, distancia: distancia(estado.jogador.x, estado.jogador.y, item.x, item.y) }))
+    .filter((item) => item.distancia <= 3.5)
+    .sort((a, b) => a.distancia - b.distancia)[0];
+  if (!local) return;
+
+  const x = (local.x + 0.5) * tile - camera.x;
+  const y = local.y * tile - camera.y - tile * 0.65;
+  ctx.save();
+  ctx.font = `bold ${Math.max(11, Math.min(16, tile * 0.34))}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const largura = ctx.measureText(local.nome).width + 16;
+  const altura = Math.max(23, tile * 0.48);
+  ctx.fillStyle = estado.altoContraste ? '#000000' : 'rgba(246,231,193,0.94)';
+  ctx.strokeStyle = estado.altoContraste ? '#FFE066' : '#68452B';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x - largura / 2, y - altura / 2, largura, altura, 5);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = estado.altoContraste ? '#FFFFFF' : '#3B2A1A';
+  ctx.fillText(local.nome, x, y);
+  ctx.restore();
 }
 
 function abrirEscolhasMissao(missaoId) {
@@ -897,10 +1061,30 @@ function renderizarInterior(edificio) {
   }
 
   descricao.textContent = 'O armazém reúne produtos e conversas do cotidiano da vila.';
-  ['Farinha', 'Peixe', 'Produtos da comunidade'].forEach((item) => {
+  ITENS_ARMAZEM.forEach((item) => {
     const bloco = document.createElement('div');
     bloco.className = 'interior-item';
-    bloco.textContent = item;
+    const nome = document.createElement('strong');
+    nome.textContent = item.nome;
+    const quantidade = Number(estado.inventario[item.id]) || 0;
+    const detalhe = document.createElement('small');
+    detalhe.textContent = `No inventário: ${quantidade}`;
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.disabled = estado.itensArmazemColetados.includes(item.id);
+    botao.textContent = botao.disabled ? 'Já coletado' : 'Adicionar ao inventário';
+    botao.addEventListener('click', () => {
+      if (estado.itensArmazemColetados.includes(item.id)) return;
+      estado.inventario[item.id] = (Number(estado.inventario[item.id]) || 0) + 1;
+      estado.itensArmazemColetados.push(item.id);
+      const confirmacao = `${item.nome} adicionado ao inventário. Quantidade: ${estado.inventario[item.id]}.`;
+      mostrarNotificacaoColeta(`${item.nome} +1 · adicionado ao inventário`);
+      atualizarHud();
+      salvar();
+      renderizarInterior(edificio);
+      document.getElementById('interior-feedback').textContent = confirmacao;
+    });
+    bloco.append(nome, detalhe, botao);
     sala.appendChild(bloco);
   });
 }
@@ -1579,7 +1763,7 @@ function desenhoMapa(agora = performance.now()) {
 
   MISSION_ORDER.forEach((id) => {
     const point = MISSION_POINTS[id];
-    if (estado.missoesConcluidas.includes(id)) return;
+    if (estado.missaoAtiva || estado.missoesConcluidas.includes(id)) return;
     const centerX = (point.x + 0.5) * tile - camera.x;
     const tick = estado.reduzirMovimento ? 0 : animationTick;
     const centerY = point.y * tile - camera.y + tile * 0.2;
@@ -1597,25 +1781,8 @@ function desenhoMapa(agora = performance.now()) {
 
   desenharIluminacao();
   desenharLuzes(tile, camera);
-
-  if (estado.mostrarSetas) {
-    const target = MISSION_ORDER.find((id) => !estado.missoesConcluidas.includes(id));
-    if (target) {
-      const point = MISSION_POINTS[target];
-      const dx = point.x - estado.jogador.x;
-      const dy = point.y - estado.jogador.y;
-      const pad = 24;
-      if (dx > 0 && estado.jogador.x > 8) {
-        ctx.fillText('→', canvas.width - pad, canvas.height / 2);
-      } else if (dx < 0 && estado.jogador.x < 39) {
-        ctx.fillText('←', pad, canvas.height / 2);
-      } else if (dy > 0) {
-        ctx.fillText('↓', canvas.width / 2, canvas.height - pad);
-      } else {
-        ctx.fillText('↑', canvas.width / 2, pad);
-      }
-    }
-  }
+  desenharIndicadorMissao(tile, camera);
+  desenharIdentificacaoLocal(tile, camera);
 }
 
 function loop(agora = performance.now()) {

@@ -75,6 +75,9 @@ Antes de tornar o repositório público, a equipe deve definir a licença do pro
 - A atividade de pesca mostra o lançamento, a fisgada e o peixe; a escolha de guardar ou devolver atualiza os indicadores e a disponibilidade local.
 - O armazém está junto ao núcleo comunitário, e um caminho conecta a vila à área de observação da mata.
 - As construções residenciais e personagens usam uma escala revisada para tornar as proporções mais coerentes.
+- A seta de missão acompanha a etapa atual, mostra o destino no mapa ou na borda da tela e some ao chegar; o painel informa objetivo e progresso.
+- O armazém permite adicionar cada produto uma vez ao inventário persistido. O caderno mostra quantidades, e uma notificação confirma cada coleta.
+- Caminhos conectam as frentes das casas e novas luminárias iluminam pontos da vila ao entardecer. Identificações de locais aparecem quando o jogador se aproxima.
 - Licença a definir pela equipe.
 
 ## Validação cultural

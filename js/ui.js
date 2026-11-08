@@ -2,7 +2,8 @@
 // Equipe: Bianca Vasconcelos de Lima; Katryni Haaby dos Santos Bueno; Luana Harmatiuk Guimarães; Sophia Santana da Silva; Vanessa da Silva Costa.
 // Disciplina: Design da Informação • 2026.
 
-import { MISSION_ORDER, getDescricaoMissao } from './missoes.js?v=25';
+import { CONTEUDO } from '../dados/conteudo.js?v=26';
+import { MISSION_ORDER, MISSOES_INFO, getDescricaoMissao } from './missoes.js?v=26';
 
 export function renderHorario(estado, root) {
   const periodo = {
@@ -37,19 +38,51 @@ export function renderIndicadores(estado, root) {
 }
 
 export function renderMissoes(estado, root) {
-  root.innerHTML = MISSION_ORDER.map((id) => {
+  const ativa = estado.missaoAtiva;
+  const progressoAtivo = ativa ? estado.progressoMissoes?.[ativa] : null;
+  const dadosAtivos = CONTEUDO.missoes.find((missao) => missao.id === ativa);
+  const etapaAtiva = dadosAtivos?.etapas[progressoAtivo?.passo];
+  root.replaceChildren();
+
+  if (ativa && dadosAtivos && progressoAtivo) {
+    const destaque = document.createElement('section');
+    destaque.className = 'missao-atual';
+    const titulo = document.createElement('h3');
+    titulo.textContent = MISSOES_INFO[ativa]?.nome || getDescricaoMissao(ativa);
+    const objetivo = document.createElement('p');
+    objetivo.textContent = etapaAtiva?.texto || 'Etapas concluídas. Converse com a pessoa que iniciou a missão.';
+    const avancamento = document.createElement('small');
+    const totalAlvos = etapaAtiva?.alvos?.length || 0;
+    const alvosConcluidos = progressoAtivo.alvosConcluidos?.length || 0;
+    avancamento.textContent = totalAlvos
+      ? `Etapa ${Math.min(progressoAtivo.passo + 1, progressoAtivo.total)} de ${progressoAtivo.total} · ${alvosConcluidos}/${totalAlvos} objetivos`
+      : `Etapa ${Math.min(progressoAtivo.passo + 1, progressoAtivo.total)} de ${progressoAtivo.total}`;
+    const barra = document.createElement('div');
+    barra.className = 'missao-progress';
+    barra.setAttribute('role', 'progressbar');
+    barra.setAttribute('aria-label', 'Progresso da missão');
+    barra.setAttribute('aria-valuemin', '0');
+    barra.setAttribute('aria-valuemax', String(progressoAtivo.total));
+    barra.setAttribute('aria-valuenow', String(progressoAtivo.passo));
+    const preenchimento = document.createElement('span');
+    preenchimento.style.width = `${(progressoAtivo.passo / progressoAtivo.total) * 100}%`;
+    barra.appendChild(preenchimento);
+    destaque.append(titulo, objetivo, avancamento, barra);
+    root.appendChild(destaque);
+  }
+
+  MISSION_ORDER.forEach((id) => {
     const concluida = estado.missoesConcluidas.includes(id);
-    const progresso = estado.progressoMissoes?.[id];
-    const andamento = !concluida && progresso
-      ? `<small>Em andamento · etapa ${Math.min(progresso.passo + 1, progresso.total)}/${progresso.total}</small>`
-      : '';
-    return `
-      <div class="missao-item ${concluida ? 'done' : ''}">
-        <div class="missao-check">${concluida ? '✔' : ''}</div>
-        <div>${getDescricaoMissao(id)}${andamento}</div>
-      </div>
-    `;
-  }).join('');
+    const item = document.createElement('div');
+    item.className = `missao-item ${concluida ? 'done' : ''}`;
+    const check = document.createElement('span');
+    check.className = 'missao-check';
+    check.textContent = concluida ? '✔' : '';
+    const nome = document.createElement('span');
+    nome.textContent = getDescricaoMissao(id);
+    item.append(check, nome);
+    root.appendChild(item);
+  });
 }
 
 export function renderCaderno(estado, cartas) {
