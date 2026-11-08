@@ -2,15 +2,15 @@
 // Equipe: Bianca Vasconcelos de Lima; Katryni Haaby dos Santos Bueno; Luana Harmatiuk Guimarães; Sophia Santana da Silva; Vanessa da Silva Costa.
 // Disciplina: Design da Informação • 2026.
 
-import { CONTEUDO } from '../dados/conteudo.js?v=26';
-import { ESTADO_PADRAO, ajustarIndicadores, carregarEstado, salvarEstado } from './estado.js?v=26';
-import { DialogoController } from './dialogo.js?v=26';
-import { aplicarAcessibilidade } from './acessibilidade.js?v=26';
-import { SomManager } from './som.js?v=26';
-import { renderHorario, renderIndicadores, renderMissoes } from './ui.js?v=26';
-import { AVES_POUSADAS, CENA_FANDANGO, DANCARINOS_FANDANGO, EDIFICIOS, MAPA, MAPA_DECORACOES, MISSION_POINTS, MUSICOS_FANDANGO, NPCS, PESSOAS_CENARIO, POSICAO_INICIAL_CACHORRO, POSICAO_INICIAL_JOGADOR, PONTOS_DE_OBSERVACAO, PONTOS_PESCA, distancia, findPath, getNPCsNoHorario, isPassable, tileAt } from './mundo.js?v=26';
-import { MISSION_ORDER, MISSOES_INFO } from './missoes.js?v=26';
-import { desenharAve, desenharCachorro, desenharDancarino, desenharJogador, desenharMorador, desenharMusico, desenharNpc, desenharObjeto, desenharPiso } from './sprites.js?v=26';
+import { CONTEUDO } from '../dados/conteudo.js?v=27';
+import { ESTADO_PADRAO, ajustarIndicadores, carregarEstado, salvarEstado } from './estado.js?v=27';
+import { DialogoController } from './dialogo.js?v=27';
+import { aplicarAcessibilidade } from './acessibilidade.js?v=27';
+import { SomManager } from './som.js?v=27';
+import { renderHorario, renderIndicadores, renderMissoes } from './ui.js?v=27';
+import { AVES_POUSADAS, CENA_FANDANGO, DANCARINOS_FANDANGO, EDIFICIOS, MAPA, MAPA_DECORACOES, MISSION_POINTS, MUSICOS_FANDANGO, NPCS, PESSOAS_CENARIO, POSICAO_INICIAL_CACHORRO, POSICAO_INICIAL_JOGADOR, PONTOS_DE_OBSERVACAO, PONTOS_PESCA, distancia, findPath, getNPCsNoHorario, isPassable, tileAt } from './mundo.js?v=27';
+import { MISSION_ORDER, MISSOES_INFO } from './missoes.js?v=27';
+import { desenharAve, desenharCachorro, desenharDancarino, desenharJogador, desenharMorador, desenharMusico, desenharNpc, desenharObjeto, desenharPiso } from './sprites.js?v=27';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
@@ -87,6 +87,7 @@ const ITENS_ARMAZEM = [
   { id: 'peixe', nome: 'Peixe' },
   { id: 'produtos-comunidade', nome: 'Produtos da comunidade' }
 ];
+const PRODUTOS_MERCADINHO = ['Farinha', 'Peixe', 'Produtos da comunidade'];
 const ITENS_DESTAQUE = new Set([
   'viola', 'rabeca', 'adufo', 'cataia',
   'planta-medicinal-a', 'planta-medicinal-b', 'planta-medicinal-c'
@@ -598,7 +599,8 @@ function nomeEdificio(edificio) {
     armazem: 'armazém',
     escola: 'escola',
     capela: 'capela',
-    barraca: 'barraca'
+    barraca: 'barraca',
+    mercadinho: 'Mercadinho'
   };
   return nomes[edificio.id] || 'casa';
 }
@@ -607,6 +609,7 @@ function acaoNoEdificio(edificio) {
   if (edificio.id === 'casa-de-farinha') return 'Entrar na casa de farinha';
   if (edificio.id === 'armazem') return 'Entrar no armazém';
   if (edificio.id === 'pavilhao-fandango') return 'Visitar o terreiro do fandango';
+  if (edificio.id === 'mercadinho') return 'Visitar o mercadinho';
   return `Entrar na ${nomeEdificio(edificio)}`;
 }
 
@@ -757,13 +760,16 @@ function desenharIdentificacaoLocal(tile, camera) {
     ...EDIFICIOS.map((edificio) => ({
       nome: nomeEdificio(edificio),
       x: edificio.entrada.x,
-      y: edificio.entrada.y
+      y: edificio.entrada.y,
+      alturaMarcador: 4
     })),
     ...PONTOS_PESCA.map((ponto) => ({
       nome: ponto.tipo === 'mar' ? 'Píer' : 'Lagoa',
       x: ponto.x,
-      y: ponto.y
-    }))
+      y: ponto.y,
+      alturaMarcador: 0.65
+    })),
+    { nome: 'Entrada da comunidade', x: 14, y: 12, alturaMarcador: 0.8 }
   ];
   const local = locais
     .map((item) => ({ ...item, distancia: distancia(estado.jogador.x, estado.jogador.y, item.x, item.y) }))
@@ -772,7 +778,7 @@ function desenharIdentificacaoLocal(tile, camera) {
   if (!local) return;
 
   const x = (local.x + 0.5) * tile - camera.x;
-  const y = local.y * tile - camera.y - tile * 0.65;
+  const y = local.y * tile - camera.y - tile * local.alturaMarcador;
   ctx.save();
   ctx.font = `bold ${Math.max(11, Math.min(16, tile * 0.34))}px sans-serif`;
   ctx.textAlign = 'center';
@@ -1057,6 +1063,25 @@ function renderizarInterior(edificio) {
     } else if (contexto) {
       feedback.textContent = `Próxima etapa: ${contexto.etapa.texto}`;
     }
+    return;
+  }
+
+  if (edificio.id === 'mercadinho') {
+    descricao.textContent = 'Conheça os produtos representados no protótipo. Compras e trocas dependem de uma definição com a comunidade.';
+    PRODUTOS_MERCADINHO.forEach((produto) => {
+      const bloco = document.createElement('div');
+      bloco.className = 'interior-item';
+      const nome = document.createElement('strong');
+      nome.textContent = produto;
+      const botao = document.createElement('button');
+      botao.type = 'button';
+      botao.textContent = 'Observar produto';
+      botao.addEventListener('click', () => {
+        feedback.textContent = `${produto} observado. Converse com os moradores para saber mais.`;
+      });
+      bloco.append(nome, botao);
+      sala.appendChild(bloco);
+    });
     return;
   }
 
@@ -1661,7 +1686,7 @@ function desenhoMapa(agora = performance.now()) {
   for (let y = Math.max(0, inicioY - 2); y < Math.min(MAPA.length, fimY + 1); y += 1) {
     for (let x = Math.max(0, inicioX - 2); x < Math.min(MAPA[0].length, fimX + 2); x += 1) {
       const tipo = MAPA[y][x];
-      if (tipo !== 'mato' && !['casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'canoa', 'saco'].includes(tipo)) continue;
+      if (tipo !== 'mato' && !['casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'mercadinho', 'canoa', 'saco'].includes(tipo)) continue;
       elements.push({ tipo: 'objeto', objeto: tipo, x, y, seed: x * 17 + y * 31 });
     }
   }
@@ -1691,7 +1716,7 @@ function desenhoMapa(agora = performance.now()) {
     const baseY = (element.y + 1) * tile - camera.y;
     const tick = estado.reduzirMovimento ? 0 : animationTick;
     if (element.tipo === 'objeto' || element.tipo === 'decoracao') {
-      const grande = element.tipo === 'objeto' && ['mato', 'arvore', 'palmeira', 'mangue', 'casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'canoa'].includes(element.objeto);
+      const grande = element.tipo === 'objeto' && ['mato', 'arvore', 'palmeira', 'mangue', 'casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'mercadinho', 'canoa'].includes(element.objeto);
       const destaque = element.tipo === 'decoracao' && ITENS_DESTAQUE.has(element.objeto);
       const salto = destaque && !estado.reduzirMovimento
         ? Math.sin(tick / 13 + element.seed) * tile * 0.035

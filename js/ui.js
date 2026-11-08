@@ -2,8 +2,8 @@
 // Equipe: Bianca Vasconcelos de Lima; Katryni Haaby dos Santos Bueno; Luana Harmatiuk Guimarães; Sophia Santana da Silva; Vanessa da Silva Costa.
 // Disciplina: Design da Informação • 2026.
 
-import { CONTEUDO } from '../dados/conteudo.js?v=26';
-import { MISSION_ORDER, MISSOES_INFO, getDescricaoMissao } from './missoes.js?v=26';
+import { CONTEUDO } from '../dados/conteudo.js?v=27';
+import { MISSION_ORDER, MISSOES_INFO, getDescricaoMissao } from './missoes.js?v=27';
 
 export function renderHorario(estado, root) {
   const periodo = {

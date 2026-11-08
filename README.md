@@ -78,6 +78,8 @@ Antes de tornar o repositório público, a equipe deve definir a licença do pro
 - A seta de missão acompanha a etapa atual, mostra o destino no mapa ou na borda da tela e some ao chegar; o painel informa objetivo e progresso.
 - O armazém permite adicionar cada produto uma vez ao inventário persistido. O caderno mostra quantidades, e uma notificação confirma cada coleta.
 - Caminhos conectam as frentes das casas e novas luminárias iluminam pontos da vila ao entardecer. Identificações de locais aparecem quando o jogador se aproxima.
+- Residências decorativas foram reduzidas e espaçadas; a rua central liga portas, área comercial e o caminho da praia. O mercadinho tem fachada, interior demonstrativo e interação sem compras, pois a economia depende de validação comunitária.
+- O pavilhão ganhou bancos, vegetação e iluminação de apoio, e uma placa sinaliza a entrada da comunidade.
 - Licença a definir pela equipe.
 
 ## Validação cultural

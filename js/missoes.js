@@ -2,7 +2,7 @@
 // Equipe: Bianca Vasconcelos de Lima; Katryni Haaby dos Santos Bueno; Luana Harmatiuk Guimarães; Sophia Santana da Silva; Vanessa da Silva Costa.
 // Disciplina: Design da Informação • 2026.
 
-import { MISSOES_CADASTRO, ORDEM_MISSOES } from '../dados/personagens.js?v=26';
+import { MISSOES_CADASTRO, ORDEM_MISSOES } from '../dados/personagens.js?v=27';
 
 export const MISSION_ORDER = ORDEM_MISSOES;
 export const MISSOES_INFO = MISSOES_CADASTRO;

@@ -2,7 +2,7 @@
 // Equipe: Bianca Vasconcelos de Lima; Katryni Haaby dos Santos Bueno; Luana Harmatiuk Guimarães; Sophia Santana da Silva; Vanessa da Silva Costa.
 // Disciplina: Design da Informação • 2026.
 
-import { PERSONAGENS, MISSOES_CADASTRO, ROTINAS_VILA } from '../dados/personagens.js?v=26';
+import { PERSONAGENS, MISSOES_CADASTRO, ROTINAS_VILA } from '../dados/personagens.js?v=27';
 
 export const MAPA_LARGURA = 48;
 export const MAPA_ALTURA = 32;
@@ -18,6 +18,7 @@ const TIPOS_DE_TERRENO = {
   '-': 'caminho',
   'l': 'lagoa',
   H: 'casa',
+  M: 'mercadinho',
   F: 'casaFarinha',
   S: 'saco',
   P: 'pavilhao',
@@ -85,6 +86,10 @@ for (let y = 7; y <= 11; y += 1) {
 MAPA[CASA_RURAL.y][CASA_RURAL.x] = 'casaRural';
 MAPA[17][21] = 'vila';
 MAPA[22][42] = 'barraca';
+for (const [x, y] of [[17, 16], [35, 16], [20, 20], [27, 20]]) {
+  MAPA[y][x] = 'grama';
+}
+MAPA[20][24] = 'mercadinho';
 for (let x = 19; x <= 28; x += 1) MAPA[15][x] = 'caminho';
 for (let y = 21; y <= 24; y += 1) {
   for (let x = 35; x <= 39; x += 1) MAPA[y][x] = 'lagoa';
@@ -115,13 +120,15 @@ ESTRADA_RURAL.forEach(({ x, y }) => {
   MAPA[y][x] = 'caminho';
 });
 
-for (const [y, inicio, fim] of [[15, 8, 40], [17, 10, 38], [21, 14, 34]]) {
+for (const [y, inicio, fim] of [[15, 8, 40], [17, 10, 38], [18, 10, 39], [21, 14, 34]]) {
   for (let x = inicio; x <= fim; x += 1) {
     if (MAPA[y][x] === 'vila' || MAPA[y][x] === 'caminho') {
       MAPA[y][x] = 'caminho';
     }
   }
 }
+MAPA[19][22] = 'caminho';
+MAPA[20][22] = 'caminho';
 
 export const NPCS = [
   { ...PERSONAGENS['dona-cida'], x: 21, y: 10 },
@@ -141,7 +148,7 @@ export const MISSION_POINTS = Object.fromEntries(
   })
 );
 
-const TIPOS_DE_EDIFICIO = new Set(['casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca']);
+const TIPOS_DE_EDIFICIO = new Set(['casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'mercadinho']);
 const CONTADORES_EDIFICIOS = new Map();
 export const EDIFICIOS = MAPA.flatMap((linha, y) => linha.flatMap((tipo, x) => {
   if (!TIPOS_DE_EDIFICIO.has(tipo)) return [];
@@ -156,8 +163,9 @@ export const EDIFICIOS = MAPA.flatMap((linha, y) => linha.flatMap((tipo, x) => {
     : tipo === 'casaRural' ? 'casa-rural'
       : tipo === 'pavilhao' ? 'pavilhao-fandango'
         : tipo === 'barraca' ? 'barraca'
-          : nomesPorLocal.get(`${x},${y}`) || `casa-${indice + 1}`;
-  const temInterior = tipo === 'casaFarinha' || id === 'armazem';
+          : tipo === 'mercadinho' ? 'mercadinho'
+            : nomesPorLocal.get(`${x},${y}`) || `casa-${indice + 1}`;
+  const temInterior = tipo === 'casaFarinha' || id === 'armazem' || id === 'mercadinho';
   return [{ id, tipo, x, y, largura: 3, altura: 2, entrada: { x, y: y + 1 }, temInterior }];
 }));
 
@@ -189,6 +197,11 @@ export const MAPA_DECORACOES = [
   { tipo: 'luminaria', x: 9, y: 18 },
   { tipo: 'luminaria', x: 26, y: 18 },
   { tipo: 'luminaria', x: 41, y: 18 },
+  { tipo: 'luminaria', x: 30, y: 12 },
+  { tipo: 'luminaria', x: 38, y: 12 },
+  { tipo: 'banco', x: 31, y: 12 },
+  { tipo: 'banco', x: 37, y: 12 },
+  { tipo: 'placa', x: 14, y: 12 },
   { tipo: 'planta-medicinal-a', x: 41, y: 4 },
   { tipo: 'planta-medicinal-b', x: 45, y: 4 },
   { tipo: 'planta-medicinal-c', x: 46, y: 5 },
@@ -234,6 +247,10 @@ export const MAPA_DECORACOES = [
   { tipo: 'flor', x: 9, y: 16 },
   { tipo: 'arbusto', x: 25, y: 19 },
   { tipo: 'flor', x: 36, y: 20 },
+  { tipo: 'arvore', x: 6, y: 17 },
+  { tipo: 'arbusto', x: 9, y: 22 },
+  { tipo: 'flor', x: 11, y: 22 },
+  { tipo: 'arbusto', x: 39, y: 16 },
   { tipo: 'pedra', x: 34, y: 24 },
   { tipo: 'flor', x: 40, y: 24 }
 ];

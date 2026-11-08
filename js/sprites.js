@@ -198,13 +198,13 @@ const NPC_PALETAS = {
 
 const TIPOS_DE_PISO = ['vila', 'grama', 'mato', 'roca', 'plantacao', 'praia', 'mar', 'mar-fundo', 'caminho', 'madeira', 'ceu', 'lagoa'];
 const TIPOS_DE_OBJETO = [
-  'arvore', 'palmeira', 'mangue', 'casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'canoa', 'saco',
+  'arvore', 'palmeira', 'mangue', 'casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'mercadinho', 'banco', 'canoa', 'saco',
   'forno', 'prensa', 'peneira', 'rede', 'bandeira', 'luminaria', 'viola', 'rabeca', 'adufo',
   'peixe', 'biju', 'cataia', 'placa', 'lixeiraOrganica', 'lixeiraReciclavel',
   'arbusto', 'flor', 'pedra', 'capim', 'cerca'
 ];
 const OBJETOS_GRANDES = new Set([
-  'arvore', 'palmeira', 'mangue', 'casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'canoa'
+  'arvore', 'palmeira', 'mangue', 'casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'mercadinho', 'canoa'
 ]);
 const COLUNAS_ATLAS = 8;
 const VARIANTES_PISO = 4;
@@ -330,14 +330,14 @@ function pintarObjeto(ctx, tipo, variante) {
     ctx.fillRect(18, 10, 6, 4);
     ctx.fillStyle = '#8CCB5E';
     ctx.fillRect(10, 5, 3, 2);
-  } else if (tipo === 'casa' || tipo === 'casaFarinha' || tipo === 'casaRural') {
+  } else if (tipo === 'casa' || tipo === 'casaFarinha' || tipo === 'casaRural' || tipo === 'mercadinho') {
     ctx.fillStyle = 'rgba(43,26,14,0.28)';
     ctx.fillRect(2, 28, 28, 3);
     ctx.fillStyle = tipo === 'casaFarinha' ? '#9C6B3F' : '#8A5A33';
     ctx.fillRect(3, 10, 26, 19);
     ctx.fillStyle = tipo === 'casaFarinha' ? '#D9BE82' : '#F6E7C1';
     ctx.fillRect(5, 11, 22, 17);
-    ctx.fillStyle = tipo === 'casaRural' ? '#A78354' : tipo === 'casaFarinha' ? '#8A5A33' : '#8A3D2B';
+    ctx.fillStyle = tipo === 'casaRural' ? '#A78354' : tipo === 'casaFarinha' ? '#8A5A33' : tipo === 'mercadinho' ? '#3D7180' : '#8A3D2B';
     ctx.fillRect(1, 8, 30, 5);
     ctx.fillRect(5, 4, 22, 6);
     ctx.fillRect(9, 1, 14, 5);
@@ -359,7 +359,21 @@ function pintarObjeto(ctx, tipo, variante) {
     ctx.fillRect(17, 22, 1, 1);
     ctx.fillStyle = '#8A5A33';
     ctx.fillRect(11, 28, 10, 2);
-    if (tipo === 'casaFarinha') {
+    if (tipo === 'mercadinho') {
+      ctx.fillStyle = '#5A3A1E';
+      ctx.fillRect(8, 4, 16, 5);
+      ctx.fillStyle = '#FFE066';
+      ctx.fillRect(10, 6, 2, 1);
+      ctx.fillRect(14, 6, 2, 1);
+      ctx.fillRect(18, 6, 2, 1);
+      ctx.fillStyle = '#A64C3A';
+      ctx.fillRect(3, 11, 26, 3);
+      ctx.fillStyle = '#F0D9A0';
+      ctx.fillRect(5, 11, 3, 3);
+      ctx.fillRect(12, 11, 3, 3);
+      ctx.fillRect(19, 11, 3, 3);
+      ctx.fillRect(26, 11, 3, 3);
+    } else if (tipo === 'casaFarinha') {
       ctx.fillStyle = '#5A3A1E';
       ctx.fillRect(23, 1, 4, 8);
       ctx.fillStyle = '#B8A48A';
@@ -558,6 +572,14 @@ function pintarObjeto(ctx, tipo, variante) {
     ctx.fillStyle = '#5A3A1E';
     ctx.fillRect(9, 11, 14, 1);
     ctx.fillRect(12, 14, 8, 1);
+  } else if (tipo === 'banco') {
+    ctx.fillStyle = '#68452B';
+    ctx.fillRect(5, 15, 22, 4);
+    ctx.fillRect(7, 19, 3, 8);
+    ctx.fillRect(22, 19, 3, 8);
+    ctx.fillStyle = '#A78354';
+    ctx.fillRect(7, 11, 18, 3);
+    ctx.fillRect(8, 14, 16, 2);
   } else if (tipo === 'arbusto') {
     ctx.fillStyle = 'rgba(43,26,14,0.18)';
     ctx.fillRect(4, 26, 24, 3);
@@ -677,7 +699,7 @@ function criarAtlasObjetos() {
 
 export function desenharPiso(ctx, tipo, x, y, tile, seed = 0, fundoProfundo = false) {
   const piso = tipo === 'mar' && fundoProfundo ? 'mar-fundo'
-    : ['casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'canoa', 'saco'].includes(tipo) ? 'vila'
+    : ['casa', 'casaFarinha', 'casaRural', 'pavilhao', 'barraca', 'mercadinho', 'canoa', 'saco'].includes(tipo) ? 'vila'
       : tipo;
   const pisoIndex = Math.max(0, TIPOS_DE_PISO.indexOf(piso));
   const pisoAtlas = criarAtlasPisos();
@@ -701,7 +723,7 @@ export function desenharObjeto(ctx, tipo, x, y, tile, seed = 0) {
     const objetoAtlas = criarAtlasObjetos();
     const objetoIndex = TIPOS_DE_OBJETO.indexOf(objeto) * 3 + variante;
     const objetoFrame = atlasIndex(objetoAtlas, objetoIndex);
-    const tamanho = ['casa', 'casaFarinha', 'casaRural'].includes(objeto)
+    const tamanho = ['casa', 'casaFarinha', 'casaRural', 'mercadinho'].includes(objeto)
       ? tile * 3.6
       : OBJETOS_GRANDES.has(objeto) ? tile * 2 : tile;
     objetoAtlas.drawFrame(

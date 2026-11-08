@@ -15,7 +15,7 @@ Todos os textos são rascunhos. Siga a seção «Linguagem» de docs/NARRATIVA.m
 |---|---:|---|---|
 | casa-de-farinha | 5x4 | sim | Missão da Dona Cida. Forno de barro, prensa, tipiti, peneira, cestos e sacos |
 | armazem | 4x3 | sim | Prateleiras com farinha, peixe seco e produtos. Pistas e conversas |
-| mercadinho | 4x3 | não | Bancas de peixe, fruta, artesanato e biju |
+| mercadinho | 3x2 | sim | Ponto de referência com exposição demonstrativa; compras e trocas aguardam definição com a comunidade |
 | pier | 1 de largura, até a borda do mar | não | Canoas amarradas, rede secando, cestos. Seu Nelson junto à canoa principal |
 | parque | 5x4 | não | Balanço, gangorra, banco, crianças brincando |
 | escola | 4x3 | não | Placa na frente. Citada nas escolhas da missão da farinha |
@@ -27,7 +27,7 @@ Todos os textos são rascunhos. Siga a seção «Linguagem» de docs/NARRATIVA.m
 | barraca | 3x2 | não | Artesanato e comida, com placa, biju, cataia e lixeiras |
 | trilha-da-mata | área aberta da mata | não | Caminho de observação com plantas; os usos locais precisam ser validados |
 
-O núcleo da vila reúne as casas em ruas próximas ao pavilhão e ao armazém. Caminhos conectam esse núcleo à praia, à casa de farinha e à trilha da mata.
+O núcleo da vila reúne as casas em ruas próximas ao pavilhão e ao armazém. Residências decorativas mantêm quintais e áreas livres. Caminhos conectam as portas, o mercadinho, a praia, a casa de farinha e a trilha da mata. O pavilhão tem um pequeno espaço de convivência com bancos e iluminação.
 
 ## Missões existentes
 
