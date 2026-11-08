@@ -20,6 +20,21 @@ Jogo educativo com foco em escuta, pesquisa e cultura caiçara, pensado para cri
    ```
 3. Acesse: http://localhost:8000
 
+## Telas e acessibilidade
+- A interface se adapta a celulares, tablets e computadores, em retrato ou paisagem.
+- O mapa Canvas ajusta o enquadramento ao tamanho da janela sem esticar os pixels.
+- Controles de toque, áreas seguras de celular, diálogos roláveis e opções de acessibilidade são mantidos.
+- Para verificar diferentes tamanhos, redimensione a janela ou use a simulação de dispositivos do navegador.
+
+## Publicar no GitHub
+1. Crie um repositório no GitHub. Para publicar o jogo, deixe-o público.
+2. Envie os arquivos desta pasta, incluindo `index.html`, `.nojekyll` e `.gitignore`. Não envie pastas de editor, dependências ou segredos.
+3. Para publicar também no GitHub Pages, abra **Settings → Pages**, escolha **Deploy from a branch**, selecione `main` e a pasta `/ (root)`, e salve.
+4. O GitHub exibirá o endereço da página na mesma seção. A publicação pode levar alguns minutos.
+
+O projeto é estático: não requer instalação de pacotes, compilação ou configuração de servidor no GitHub Pages.
+Antes de tornar o repositório público, a equipe deve definir a licença do projeto e concluir as validações culturais descritas nesta documentação.
+
 ## Estrutura
 - `index.html`
 - `css/estilo.css`

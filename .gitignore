@@ -1,0 +1,21 @@
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor e ferramentas locais
+.vscode/
+.idea/
+*.log
+
+# Dependências e artefatos de build/teste
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# Configurações locais e segredos
+.env
+.env.*
+!.env.example
